@@ -1,0 +1,4 @@
+#!/bin/sh
+cd `dirname $0`
+../src/ddtp -n .:../src $*
+# for shared lib, use: opp_run -l ../src/ddtp -n .:../src $*
