@@ -10,6 +10,7 @@ enum State {
   PRE_RECV_DATA,
   SEND_DATA,
   RECV_DATA,
+  PRE_SEND_CTRL,
   SEND_CTRL,
   RECV_CTRL
 };
