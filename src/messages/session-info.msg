@@ -1,3 +1,5 @@
-// dest address
-// source address
-// priority
+packet ddtp_SessionInfo {
+  unsigned int srcAddress;
+  unsigned int dstAddress;
+  unsigned int priority;
+};

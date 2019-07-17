@@ -1,3 +1,7 @@
-// fin (bool) - termination of a session
-// snack (bool) - list of datablocks that were not received
-// ack (bool) - seq of data blocks that were received
+packet ddtp_Control {
+  bool fin;
+  unsigned int numSnack;
+  unsigned int numAck;
+  unsigned int snack[];
+  unsigned int ack[];
+};

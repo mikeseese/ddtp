@@ -1,3 +1,5 @@
-// offset from total
-// length
-// checksum
+packet ddtp_Metadata {
+  unsigned int offset;
+  unsigned int length;
+  unsigned int checksums[];
+};
