@@ -1,0 +1,6 @@
+*_m.cc
+*_m.h
+*.o
+*.o.d
+out
+ddtp_dbg
