@@ -1,5 +1,6 @@
 packet ddtp_SessionInfo {
-  unsigned int srcAddress;
-  unsigned int dstAddress;
+  unsigned int id;
+  unsigned int src;
+  unsigned int dst;
   unsigned int priority;
 };

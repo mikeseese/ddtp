@@ -1,6 +1,7 @@
-#ifndef DDTP_STATES_H
+#ifndef DDTP_STATE_H
+#define DDTP_STATE_H
 
-enum State {
+enum ddtp_State {
   STANDBY,
   PRE_SEND_SESSION_INFO,
   PRE_RECV_SESSION_INFO,

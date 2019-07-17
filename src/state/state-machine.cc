@@ -1,6 +1,6 @@
 #include "state.h";
 
-State GetNextState(State state) {
+ddtp_State GetNextState(ddtp_State state) {
   switch (state) {
     case STANDBY: {
       // if received a message, return PRE_RECV_METADATA
