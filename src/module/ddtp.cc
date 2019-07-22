@@ -4,7 +4,7 @@ void DDTP::initialize() {
   state = ddtp_State::STANDBY;
   session = nullptr;
   numSessions = 0;
-  // TODO: address
+  address = par("address").intValue();
 
   flag_StartingTransmission = false;
   flag_ReceivedTransmission = false;
