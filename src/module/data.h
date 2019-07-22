@@ -10,6 +10,7 @@ class ddtp_Data {
   ddtp_Data(unsigned int length, bool initializeData);
   unsigned int length;
   char * blockAt(unsigned int number);
+  void setBlockAt(unsigned int number, char * block);
   unsigned int checksumAt(unsigned int number);
   void setChecksumAt(unsigned int number, unsigned int crc);
   void destroy();

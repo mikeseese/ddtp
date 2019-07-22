@@ -8,5 +8,6 @@ packet ddtp_packet;
 
 packet ddtp_Block extends ddtp_packet {
   packetType = BLOCK;
+  unsigned int number;
   char data[];
 };

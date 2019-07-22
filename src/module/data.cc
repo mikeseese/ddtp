@@ -29,6 +29,10 @@ char * ddtp_Data::blockAt(unsigned int number) {
   return blocks.at(number);
 }
 
+void ddtp_Data::setBlockAt(unsigned int number, char * block) {
+  memcpy(&blocks.at(number), block, sizeof(char) * BYTES_PER_BLOCK);
+}
+
 unsigned int ddtp_Data::checksumAt(unsigned int number) {
   return checksums.at(number);
 }

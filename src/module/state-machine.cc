@@ -102,10 +102,13 @@ void DDTP::GetNextState() {
       }
 
       ddtp_Block * blockMessage = new ddtp_Block();
+      blockMessage->setNumber(session->nextBlockToSend);
       blockMessage->setDataArraySize(BYTES_PER_BLOCK);
       for (int i = 0; i < BYTES_PER_BLOCK; i++) {
         blockMessage->setData(i, blockData[i]);
       }
+
+      session->nextBlockToSend++;
       break;
     }
     case RECV_DATA: {

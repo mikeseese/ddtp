@@ -1,4 +1,5 @@
 #include "ddtp.h"
+#include "../utils/CRC.h"
 
 void DDTP::initialize() {
   state = ddtp_State::STANDBY;
@@ -26,17 +27,32 @@ void DDTP::handleMessage(cMessage *msg) {
       ddtp_ACK * ack = check_and_cast<ddtp_ACK *>(msg);
 
       if (session != nullptr) {
-        // mark as acked
-        for (auto itr = session->pendingBlocks.begin(); itr != session->pendingBlocks.end(); itr++) {
-          if (*itr == ack->getBlock()) {
-            session->pendingBlocks.erase(itr);
-            break;
-          }
-        }
+        if (ack->getNack()) {
+          // we need to send the block again
+          unsigned int blockNumber = ack->getBlock();
+          char * blockData = data->blockAt(blockNumber);
 
-        if (address != session->src) {
-          // bubble it up
-          send(ack, "up");
+          ddtp_Block * block = new ddtp_Block();
+          block->setNumber(blockNumber);
+          block->setDataArraySize(BYTES_PER_BLOCK);
+          for (int i = 0; i < BYTES_PER_BLOCK; i++) {
+            block->setData(i, blockData[i]);
+          }
+
+          send(block, "down");
+        } else {
+          // mark as acked
+          for (auto itr = session->pendingBlocks.begin(); itr != session->pendingBlocks.end(); itr++) {
+            if (*itr == ack->getBlock()) {
+              session->pendingBlocks.erase(itr);
+              break;
+            }
+          }
+
+          if (address != session->src) {
+            // bubble it up
+            send(ack, "up");
+          }
         }
       }
 
@@ -100,6 +116,34 @@ void DDTP::handleMessage(cMessage *msg) {
       }
 
       break;
+    }
+    case BLOCK: {
+      ddtp_Block * block = check_and_cast<ddtp_Block *>(msg);
+
+      if (session != nullptr) {
+        // mark the data
+        char * data = new char [BYTES_PER_BLOCK];
+        for (unsigned int i = 0; i < BYTES_PER_BLOCK; i++) {
+          data[i] = block->getData(i);
+        }
+        unsigned int crc = CRC::Calculate(data, sizeof(char) * BYTES_PER_BLOCK, CRC::CRC_32());
+
+        ddtp_ACK * ack = new ddtp_ACK();
+        if (crc != this->data->checksumAt(block->getNumber())) {
+          // crc didnt match, nack it
+          ack->setNack(true);
+        } else {
+          // crc matched, mark it
+          this->data->setBlockAt(block->getNumber(), data);
+
+          if (address != session->dst) {
+            // bubble it down
+            send(block, "down");
+          }
+        }
+
+        send(ack, "up");
+      }
     }
   }
 
