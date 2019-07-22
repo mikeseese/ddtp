@@ -10,5 +10,6 @@ packet ddtp_Metadata extends ddtp_packet {
   packetType = METADATA;
   unsigned int offset;
   unsigned int length;
+  unsigned int totalLength;
   unsigned int checksums[];
 };

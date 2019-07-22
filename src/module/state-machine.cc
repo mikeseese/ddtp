@@ -13,7 +13,7 @@ void DDTP::GetNextState() {
         // node moves their state machine
         ddtp_Status * status = new ddtp_Status();
         status->setCode(DDTP_ACCEPT);
-        send(status, "out"); // TODO: is this the right gate?
+        send(status, "down");
 
         return;
       } else if (flag_ReceivedTransmission) {
@@ -31,7 +31,7 @@ void DDTP::GetNextState() {
       sessionInfo->setPriority(0);
       sessionInfo->setIsControl(session->isControl);
 
-      send(sessionInfo, "out");
+      send(sessionInfo, "down");
 
       state = session->isControl ? PRE_SEND_CTRL : PRE_SEND_METADATA;
       break;
@@ -50,13 +50,14 @@ void DDTP::GetNextState() {
       ddtp_Metadata * metadata = new ddtp_Metadata();
       metadata->setOffset(session->offset);
       metadata->setLength(session->length);
+      metadata->setTotalLength(data->length);
       metadata->setChecksumsArraySize(session->length);
 
       for (unsigned int i = session->offset; i < session->offset + session->length; i++) {
         metadata->setChecksums(i, data->checksumAt(i));
       }
 
-      send(metadata, "out");
+      send(metadata, "down");
 
       state = PRE_SEND_DATA;
       return;
@@ -83,7 +84,7 @@ void DDTP::GetNextState() {
       // TODO: reject logic?
       ddtp_Status * status = new ddtp_Status();
       status->setCode(ddtp_SessionStatus::ACCEPTED);
-      send(status, "out");
+      send(status, "up");
       break;
     }
     case SEND_DATA: {

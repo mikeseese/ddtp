@@ -8,5 +8,5 @@ packet ddtp_packet;
 
 packet ddtp_ACK extends ddtp_packet {
   packetType = ACK;
-  unsigned int blocks[];
+  unsigned int block;
 };
