@@ -85,6 +85,7 @@ void DDTP::GetNextState() {
       ddtp_Status * status = new ddtp_Status();
       status->setCode(ddtp_SessionStatus::ACCEPTED);
       send(status, "up$o");
+      state = RECV_DATA;
       break;
     }
     case SEND_DATA: {
