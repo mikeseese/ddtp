@@ -17,7 +17,11 @@ void DDTP::initialize() {
 void DDTP::handleMessage(cMessage *msg) {
   ddtp_packet * pk = check_and_cast<ddtp_packet *>(msg);
 
-  if (session == nullptr && pk->getPacketType() != SESSION_INFO) {
+  if (
+    session == nullptr &&
+    pk->getPacketType() != SESSION_INFO &&
+    pk->getPacketType() != STATE_HEARTBEAT
+  ) {
     // we don't have a session as of yet
     flag_ReceivedTransmission = true;
     GetNextState();
@@ -41,7 +45,7 @@ void DDTP::handleMessage(cMessage *msg) {
             block->setData(i, blockData[i]);
           }
 
-          send(block, "down");
+          send(block, "down$o");
         } else {
           // mark as acked
           for (auto itr = session->pendingBlocks.begin(); itr != session->pendingBlocks.end(); itr++) {
@@ -53,7 +57,7 @@ void DDTP::handleMessage(cMessage *msg) {
 
           if (address != session->src) {
             // bubble it up
-            send(ack, "up");
+            send(ack, "up$o");
           }
         }
       }
@@ -81,7 +85,7 @@ void DDTP::handleMessage(cMessage *msg) {
 
         if (address != session->dst) {
           // bubble it down
-          send(metadata, "down");
+          send(metadata, "down$o");
         }
       }
 
@@ -100,7 +104,7 @@ void DDTP::handleMessage(cMessage *msg) {
 
       if (address != session->dst) {
         // bubble it down
-        send(sessionInfo, "down");
+        send(sessionInfo, "down$o");
       }
 
       break;
@@ -113,7 +117,7 @@ void DDTP::handleMessage(cMessage *msg) {
 
         if (address != session->src) {
           // bubble it up
-          send(status, "up");
+          send(status, "up$o");
         }
       }
 
@@ -140,11 +144,11 @@ void DDTP::handleMessage(cMessage *msg) {
 
           if (address != session->dst) {
             // bubble it down
-            send(block, "down");
+            send(block, "down$o");
           }
         }
 
-        send(ack, "up");
+        send(ack, "up$o");
       }
     }
     case STATE_HEARTBEAT: {
@@ -171,7 +175,7 @@ void DDTP::handleMessage(cMessage *msg) {
                 block->setData(i, blockData[i]);
               }
 
-              send(block, "down");
+              send(block, "down$o");
               break;
             }
           }

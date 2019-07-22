@@ -2,10 +2,12 @@ package ddtp.simulations;
 
 @license(LGPL);
 
-DDTP node {
+simple DDTP {
+  parameters:
+    int address;
   gates:
-    inout up;
-    inout down;
+    inout up @loose;
+    inout down @loose;
 }
 
 network OneToOne {
@@ -17,5 +19,5 @@ network OneToOne {
       address = 1;
     }
   connections:
-    satellite.down <-> { delay = 10ms } <=>user.up;
+    satellite.down <--> { delay = 10ms; } <--> user.up;
 }
