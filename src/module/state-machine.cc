@@ -1,5 +1,7 @@
 #include "ddtp.h"
 
+const unsigned int MAX_PENDING_BLOCKS = 5;
+
 void DDTP::GetNextState() {
   switch (state) {
     case STANDBY: {
@@ -45,33 +47,64 @@ void DDTP::GetNextState() {
       break;
     }
     case PRE_SEND_METADATA: {
-      // SendMetadata()
+      ddtp_Metadata * metadata = new ddtp_Metadata();
+      metadata->setOffset(session->offset);
+      metadata->setLength(session->length);
+      metadata->setChecksumsArraySize(session->length);
+
+      for (unsigned int i = session->offset; i < session->offset + session->length; i++) {
+        metadata->setChecksums(i, data->checksumAt(i));
+      }
+
+      send(metadata, "out");
+
       state = PRE_SEND_DATA;
       return;
     }
     case PRE_RECV_METADATA: {
-      // if received metadata, return PRE_RECV_DATA
-      // else return PRE_RECV_METADATA
+      if (session == nullptr || session->length == 0) {
+        // haven't received the metadata yet
+        return;
+      }
+
+      state = PRE_RECV_DATA;
       break;
     }
     case PRE_SEND_DATA: {
-      // received a `Status`?
-      // if yes
-      //   accepted? return SEND_DATA
-      //   else return STANDBY
-      // else return PRE_SEND_DATA
+      if (session->status == ddtp_SessionStatus::UNKNOWN) {
+        // haven't received the status message yet
+        return;
+      }
+
+      state = session->status == ddtp_SessionStatus::ACCEPTED ? SEND_DATA : STANDBY;
       break;
     }
     case PRE_RECV_DATA: {
-      // sendstatus of accept/reject
-      // if reject, return STANDBY
-      // else, return RECV_DATA
+      // TODO: reject logic?
+      ddtp_Status * status = new ddtp_Status();
+      status->setCode(ddtp_SessionStatus::ACCEPTED);
+      send(status, "out");
       break;
     }
     case SEND_DATA: {
-      // SendNextBlock()
-      // if not the last block, return PRE_SEND_DATA
-      // else return STANDBY
+      if (session->pendingBlocks.size() >= MAX_PENDING_BLOCKS) {
+        // dont' send any more blocks
+        return;
+      }
+
+      char * blockData = data->blockAt(session->nextBlockToSend);
+
+      if (blockData == nullptr) {
+        // we have no more blocks to send
+        state = STANDBY;
+        return;
+      }
+
+      ddtp_Block * blockMessage = new ddtp_Block();
+      blockMessage->setDataArraySize(BYTES_PER_BLOCK);
+      for (int i = 0; i < BYTES_PER_BLOCK; i++) {
+        blockMessage->setData(i, blockData[i]);
+      }
       break;
     }
     case RECV_DATA: {

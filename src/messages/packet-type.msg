@@ -4,4 +4,5 @@ enum ddtp_PacketType {
   METADATA = 2;
   SESSION_INFO = 3;
   STATUS = 4;
+  BLOCK = 5;
 }

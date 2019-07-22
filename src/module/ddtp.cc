@@ -56,7 +56,7 @@ bool DDTP::StartRandomTransmission(unsigned int dstAddress, unsigned int length)
     session = nullptr;
   }
 
-  session = new ddtp_Session(address, dstAddress, length, false);
+  session = new ddtp_Session(address, dstAddress, 0, length, false);
   session->id = ++numSessions;
 
   flag_StartingTransmission = true;

@@ -5,6 +5,7 @@
 #include <string.h>
 #include "state.h"
 #include "session.h"
+#include "data.h"
 #include "../messages/messages.h"
 
 using namespace omnetpp;
@@ -20,6 +21,7 @@ class DDTP : public cSimpleModule {
   unsigned int address;
   ddtp_State state;
   ddtp_Session * session;
+  ddtp_Data * data;
 
   void GetNextState();
 

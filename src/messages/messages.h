@@ -8,5 +8,6 @@
 #include "packet-type_m.h"
 #include "session-info_m.h"
 #include "status_m.h"
+#include "block_m.h"
 
 #endif

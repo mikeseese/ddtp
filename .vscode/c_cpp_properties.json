@@ -1,0 +1,16 @@
+{
+    "configurations": [
+        {
+            "name": "Default",
+            "includePath": [
+                "/usr/local/include",
+                "/home/mike/Downloads/omnetpp-5.5.1/include"
+            ],
+            "intelliSenseMode": "clang-x64",
+            "compilerPath": "/usr/bin/clang",
+            "cStandard": "c11",
+            "cppStandard": "c++17"
+        }
+    ],
+    "version": 4
+}
