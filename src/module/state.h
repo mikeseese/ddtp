@@ -13,7 +13,7 @@ enum ddtp_State {
   RECV_DATA,
   PRE_SEND_CTRL,
   SEND_CTRL,
-  RECV_CTRL
+  PRE_RECV_CTRL
 };
 
 #endif

@@ -5,12 +5,13 @@
 
 class ddtp_Session {
 public:
-  ddtp_Session(unsigned int src, unsigned int dst, unsigned int length);
+  ddtp_Session(unsigned int src, unsigned int dst, unsigned int length, bool isControl);
 
   unsigned int id;
   unsigned int src;
   unsigned int dst;
   unsigned int length;
+  bool isControl;
   ddtp_BlockState * blocks;
 
   void destroy();

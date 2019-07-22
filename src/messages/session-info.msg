@@ -12,4 +12,5 @@ packet ddtp_SessionInfo extends ddtp_packet {
   unsigned int src;
   unsigned int dst;
   unsigned int priority;
+  bool isControl;
 };

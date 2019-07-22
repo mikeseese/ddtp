@@ -6,6 +6,13 @@ void DDTP::GetNextState() {
       if (flag_StartingTransmission) {
         state = PRE_SEND_SESSION_INFO;
         flag_StartingTransmission = false;
+
+        // we need to send a message to make sure a receiving
+        // node moves their state machine
+        ddtp_Status * status = new ddtp_Status();
+        status->setCode(DDTP_ACCEPT);
+        send(status, "out"); // TODO: is this the right gate?
+
         return;
       } else if (flag_ReceivedTransmission) {
         state = PRE_RECV_SESSION_INFO;
@@ -15,16 +22,26 @@ void DDTP::GetNextState() {
       break;
     }
     case PRE_SEND_SESSION_INFO: {
-      // SendSessionInfo()
-      // if sending data blocks, return PRE_SEND_METADATA
-      // else, return PRE_SEND_CTRL
+      ddtp_SessionInfo * sessionInfo = new ddtp_SessionInfo();
+      sessionInfo->setId(session->id);
+      sessionInfo->setSrc(session->src);
+      sessionInfo->setDst(session->dst);
+      sessionInfo->setPriority(0);
+      sessionInfo->setIsControl(session->isControl);
+
+      send(sessionInfo, "out");
+
+      state = session->isControl ? PRE_SEND_CTRL : PRE_SEND_METADATA;
       break;
     }
     case PRE_RECV_SESSION_INFO: {
-      // if received session info
-      //   if receiving data blocks, return PRE_RECV_METADATA
-      //   else, return PRE_RECV_CTRL
-      // else, return PRE_RECV_SESSION_INFO
+      if (session == nullptr) {
+        return;
+      }
+
+      numSessions++;
+
+      state = session->isControl ? PRE_RECV_CTRL : PRE_RECV_METADATA;
       break;
     }
     case PRE_SEND_METADATA: {
@@ -75,7 +92,7 @@ void DDTP::GetNextState() {
       // else return SEND_CTRL
       break;
     }
-    case RECV_CTRL: {
+    case PRE_RECV_CTRL: {
       break;
     }
     default: {

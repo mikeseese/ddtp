@@ -5,8 +5,7 @@
 #include <string.h>
 #include "state.h"
 #include "session.h"
-#include "../messages/ddtp_packet_m.h"
-#include "../messages/packet-type_m.h"
+#include "../messages/messages.h"
 
 using namespace omnetpp;
 
@@ -17,10 +16,12 @@ class DDTP : public cSimpleModule {
   // virtual void activity() override;
 
  private:
+  unsigned int numSessions;
   unsigned int address;
   ddtp_State state;
-  void GetNextState();
   ddtp_Session * session;
+
+  void GetNextState();
 
  public:
   bool StartRandomTransmission(unsigned int dstAddress, unsigned int length);
