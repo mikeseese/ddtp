@@ -20,8 +20,8 @@ ddtp_Data::ddtp_Data(unsigned int length, bool initializeData) {
       memset(block, 0, sizeof(char) * BYTES_PER_BLOCK);
     }
 
-    blocks.push_back(block);
-    checksums.push_back(crc);
+    blocks.at(i) = block;
+    checksums.at(i) = crc;
   }
 }
 
