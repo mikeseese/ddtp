@@ -4,10 +4,11 @@
 #include "block-state.h"
 #include "session-status.h"
 #include <vector>
+#include <omnetpp.h>
 
 struct ddtp_PendingBlock {
   unsigned int number;
-  simtime_t time;
+  omnetpp::simtime_t time;
 };
 
 class ddtp_Session {
