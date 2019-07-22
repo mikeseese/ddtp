@@ -5,6 +5,11 @@
 #include "session-status.h"
 #include <vector>
 
+struct ddtp_PendingBlock {
+  unsigned int number;
+  simtime_t time;
+};
+
 class ddtp_Session {
 public:
   ddtp_Session(
@@ -24,7 +29,7 @@ public:
   ddtp_SessionStatus status;
   ddtp_BlockState * blocks;
   unsigned int nextBlockToSend;
-  std::vector<unsigned int> pendingBlocks;
+  std::vector<ddtp_PendingBlock> pendingBlocks;
 
   void destroy();
 };

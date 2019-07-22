@@ -42,6 +42,7 @@ OBJS = \
     $O/messages/metadata_m.o \
     $O/messages/packet-type_m.o \
     $O/messages/session-info_m.o \
+    $O/messages/state-heartbeat_m.o \
     $O/messages/status_m.o
 
 # Message files
@@ -53,6 +54,7 @@ MSGFILES = \
     messages/metadata.msg \
     messages/packet-type.msg \
     messages/session-info.msg \
+    messages/state-heartbeat.msg \
     messages/status.msg
 
 # SM files

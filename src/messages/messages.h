@@ -9,5 +9,6 @@
 #include "session-info_m.h"
 #include "status_m.h"
 #include "block_m.h"
+#include "state-heartbeat_m.h"
 
 #endif

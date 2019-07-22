@@ -5,4 +5,5 @@ enum ddtp_PacketType {
   SESSION_INFO = 3;
   STATUS = 4;
   BLOCK = 5;
+  STATE_HEARTBEAT = 6;
 }

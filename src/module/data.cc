@@ -26,6 +26,10 @@ ddtp_Data::ddtp_Data(unsigned int length, bool initializeData) {
 }
 
 char * ddtp_Data::blockAt(unsigned int number) {
+  if (number >= blocks.size()) {
+    return nullptr;
+  }
+
   return blocks.at(number);
 }
 

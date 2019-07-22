@@ -10,6 +10,8 @@ void DDTP::initialize() {
 
   flag_StartingTransmission = false;
   flag_ReceivedTransmission = false;
+
+  scheduleAt(SimTime(500, SIMTIME_MS), new ddtp_StateHeartbeat());
 }
 
 void DDTP::handleMessage(cMessage *msg) {
@@ -43,7 +45,7 @@ void DDTP::handleMessage(cMessage *msg) {
         } else {
           // mark as acked
           for (auto itr = session->pendingBlocks.begin(); itr != session->pendingBlocks.end(); itr++) {
-            if (*itr == ack->getBlock()) {
+            if (itr->number == ack->getBlock()) {
               session->pendingBlocks.erase(itr);
               break;
             }
@@ -145,6 +147,41 @@ void DDTP::handleMessage(cMessage *msg) {
         send(ack, "up");
       }
     }
+    case STATE_HEARTBEAT: {
+      switch (state) {
+        case STANDBY: {
+          if (data == nullptr && session == nullptr && address == SATELLITE_ADDR) {
+            StartRandomTransmission(USER_ADDR, PAYLOAD_LENGTH);
+          }
+
+          // TODO: check if we have a new connection?
+          break;
+        }
+        case SEND_DATA: {
+          // check if its been awhile since we've seen any blocks
+          for (auto itr = session->pendingBlocks.begin(); itr != session->pendingBlocks.end(); itr++) {
+            if (itr->time <= simTime() - SimTime(1000, SIMTIME_MS)) {
+              // let's resend the block
+              char * blockData = data->blockAt(itr->number);
+
+              ddtp_Block * block = new ddtp_Block();
+              block->setNumber(itr->number);
+              block->setDataArraySize(BYTES_PER_BLOCK);
+              for (int i = 0; i < BYTES_PER_BLOCK; i++) {
+                block->setData(i, blockData[i]);
+              }
+
+              send(block, "down");
+              break;
+            }
+          }
+          break;
+        }
+      }
+
+      ddtp_StateHeartbeat * nextBeat = new ddtp_StateHeartbeat();
+      scheduleAt((simTime() + SimTime(HEARTBEAT_MS, SIMTIME_MS)), nextBeat);
+    }
   }
 
   GetNextState();
@@ -168,8 +205,6 @@ bool DDTP::StartRandomTransmission(unsigned int dstAddress, unsigned int length)
   session->id = ++numSessions;
 
   flag_StartingTransmission = true;
-
-  GetNextState();
 
   return true;
 }

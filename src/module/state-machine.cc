@@ -89,15 +89,25 @@ void DDTP::GetNextState() {
     }
     case SEND_DATA: {
       if (session->pendingBlocks.size() >= MAX_PENDING_BLOCKS) {
-        // dont' send any more blocks
+        // don't send any more blocks
         return;
       }
 
       char * blockData = data->blockAt(session->nextBlockToSend);
 
       if (blockData == nullptr) {
-        // we have no more blocks to send
-        state = STANDBY;
+        if (session->pendingBlocks.size() == 0) {
+          // we have no more blocks to send, we're done!
+          session->destroy();
+          delete session;
+          session = nullptr;
+
+          data->destroy();
+          delete data;
+          data = nullptr;
+
+          state = STANDBY;
+        }
         return;
       }
 
@@ -107,6 +117,11 @@ void DDTP::GetNextState() {
       for (int i = 0; i < BYTES_PER_BLOCK; i++) {
         blockMessage->setData(i, blockData[i]);
       }
+
+      struct ddtp_PendingBlock pendingBlock;
+      pendingBlock.number = session->nextBlockToSend;
+      pendingBlock.time = simTime();
+      session->pendingBlocks.push_back(pendingBlock);
 
       session->nextBlockToSend++;
       break;
