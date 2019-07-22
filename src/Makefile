@@ -31,10 +31,14 @@ O = $(PROJECT_OUTPUT_DIR)/$(CONFIGNAME)/$(PROJECTRELATIVE_PATH)
 
 # Object files for local .cc, .msg and .sm files
 OBJS = \
-    $O/state/state-machine.o \
+    $O/module/ddtp.o \
+    $O/module/session.o \
+    $O/module/state-machine.o \
     $O/messages/ack_m.o \
     $O/messages/control_m.o \
+    $O/messages/ddtp_packet_m.o \
     $O/messages/metadata_m.o \
+    $O/messages/packet-type_m.o \
     $O/messages/session-info_m.o \
     $O/messages/status_m.o
 
@@ -42,7 +46,9 @@ OBJS = \
 MSGFILES = \
     messages/ack.msg \
     messages/control.msg \
+    messages/ddtp_packet.msg \
     messages/metadata.msg \
+    messages/packet-type.msg \
     messages/session-info.msg \
     messages/status.msg
 

@@ -1,11 +1,17 @@
-#include "state.h";
+#include "ddtp.h"
 
-ddtp_State GetNextState(ddtp_State state) {
+void DDTP::GetNextState() {
   switch (state) {
     case STANDBY: {
-      // if received a message, return PRE_RECV_METADATA
-      // if want to send a message, return PRE_SEND_SESSION_INFO
-      // else return STANDBY
+      if (flag_StartingTransmission) {
+        state = PRE_SEND_SESSION_INFO;
+        flag_StartingTransmission = false;
+        return;
+      } else if (flag_ReceivedTransmission) {
+        state = PRE_RECV_SESSION_INFO;
+        flag_ReceivedTransmission = false;
+        return;
+      }
       break;
     }
     case PRE_SEND_SESSION_INFO: {
@@ -23,8 +29,8 @@ ddtp_State GetNextState(ddtp_State state) {
     }
     case PRE_SEND_METADATA: {
       // SendMetadata()
-      return PRE_SEND_DATA;
-      break;
+      state = PRE_SEND_DATA;
+      return;
     }
     case PRE_RECV_METADATA: {
       // if received metadata, return PRE_RECV_DATA
@@ -60,8 +66,8 @@ ddtp_State GetNextState(ddtp_State state) {
     }
     case PRE_SEND_CTRL: {
       // SendCtrl()
-      return SEND_CTRL;
-      break;
+      state = SEND_CTRL;
+      return;
     }
     case SEND_CTRL: {
       // if received status?
@@ -73,8 +79,8 @@ ddtp_State GetNextState(ddtp_State state) {
       break;
     }
     default: {
-      return STANDBY;
-      break;
+      state = STANDBY;
+      return;
     }
   }
 }
