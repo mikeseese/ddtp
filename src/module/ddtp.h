@@ -13,7 +13,7 @@ using namespace omnetpp;
 #define SATELLITE_ADDR 0
 #define USER_ADDR 1
 #define PAYLOAD_LENGTH 100
-#define HEARTBEAT_MS 100
+#define HEARTBEAT_US 10000
 
 class DDTP : public cSimpleModule {
  protected:
@@ -27,6 +27,7 @@ class DDTP : public cSimpleModule {
   ddtp_State state;
   ddtp_Session * session;
   ddtp_Data * data;
+  simtime_t nextHeartbeat;
 
   void GetNextState();
 

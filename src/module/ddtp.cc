@@ -11,7 +11,8 @@ void DDTP::initialize() {
   flag_StartingTransmission = false;
   flag_ReceivedTransmission = false;
 
-  scheduleAt(SimTime(500, SIMTIME_MS), new ddtp_StateHeartbeat());
+  nextHeartbeat = SimTime(500, SIMTIME_MS);
+  scheduleAt(nextHeartbeat, new ddtp_StateHeartbeat());
 }
 
 void DDTP::handleMessage(cMessage *msg) {
@@ -154,7 +155,7 @@ void DDTP::handleMessage(cMessage *msg) {
     case STATE_HEARTBEAT: {
       switch (state) {
         case STANDBY: {
-          if (data == nullptr && session == nullptr && address == SATELLITE_ADDR) {
+          if (data == nullptr && session == nullptr && address == SATELLITE_ADDR && simTime() < SimTime(750, SIMTIME_MS)) {
             StartRandomTransmission(USER_ADDR, PAYLOAD_LENGTH);
           }
 
@@ -183,8 +184,12 @@ void DDTP::handleMessage(cMessage *msg) {
         }
       }
 
-      ddtp_StateHeartbeat * nextBeat = new ddtp_StateHeartbeat();
-      scheduleAt((simTime() + SimTime(HEARTBEAT_MS, SIMTIME_MS)), nextBeat);
+      simtime_t potentialNextHeartbeat = simTime() + SimTime(HEARTBEAT_US, SIMTIME_US);
+      if (potentialNextHeartbeat - nextHeartbeat >= SimTime(HEARTBEAT_US, SIMTIME_US)) {
+        nextHeartbeat = potentialNextHeartbeat;
+        ddtp_StateHeartbeat * nextBeat = new ddtp_StateHeartbeat();
+        scheduleAt(nextHeartbeat, nextBeat);
+      }
     }
   }
 
