@@ -6,6 +6,7 @@
 ddtp_Data::ddtp_Data(unsigned int length, bool initializeData) {
   this->length = length;
   blocks.resize(length);
+  checksums.resize(length);
 
   for (unsigned int i = 0; i < length; i++) {
     char * block = new char [BYTES_PER_BLOCK];
