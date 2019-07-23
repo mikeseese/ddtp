@@ -94,37 +94,41 @@ void DDTP::GetNextState() {
         return;
       }
 
-      char * blockData = data->blockAt(session->nextBlockToSend);
+      while (session->pendingBlocks.size() < MAX_PENDING_BLOCKS) {
+        char * blockData = data->blockAt(session->nextBlockToSend);
 
-      if (blockData == nullptr) {
-        if (session->pendingBlocks.size() == 0) {
-          // we have no more blocks to send, we're done!
-          session->destroy();
-          delete session;
-          session = nullptr;
+        if (blockData == nullptr) {
+          if (session->pendingBlocks.size() == 0) {
+            // we have no more blocks to send, we're done!
+            session->destroy();
+            delete session;
+            session = nullptr;
 
-          data->destroy();
-          delete data;
-          data = nullptr;
+            data->destroy();
+            delete data;
+            data = nullptr;
 
-          state = STANDBY;
+            state = STANDBY;
+          }
+          return;
         }
-        return;
+
+        ddtp_Block * blockMessage = new ddtp_Block();
+        blockMessage->setNumber(session->nextBlockToSend);
+        blockMessage->setDataArraySize(BYTES_PER_BLOCK);
+        for (int i = 0; i < BYTES_PER_BLOCK; i++) {
+          blockMessage->setData(i, blockData[i]);
+        }
+        send(blockMessage, "down$o");
+
+        struct ddtp_PendingBlock pendingBlock;
+        pendingBlock.number = session->nextBlockToSend;
+        pendingBlock.time = simTime();
+        session->pendingBlocks.push_back(pendingBlock);
+
+        session->nextBlockToSend++;
       }
 
-      ddtp_Block * blockMessage = new ddtp_Block();
-      blockMessage->setNumber(session->nextBlockToSend);
-      blockMessage->setDataArraySize(BYTES_PER_BLOCK);
-      for (int i = 0; i < BYTES_PER_BLOCK; i++) {
-        blockMessage->setData(i, blockData[i]);
-      }
-
-      struct ddtp_PendingBlock pendingBlock;
-      pendingBlock.number = session->nextBlockToSend;
-      pendingBlock.time = simTime();
-      session->pendingBlocks.push_back(pendingBlock);
-
-      session->nextBlockToSend++;
       break;
     }
     case RECV_DATA: {
