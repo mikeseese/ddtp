@@ -136,6 +136,7 @@ void DDTP::handleMessage(cMessage *msg) {
         unsigned int crc = CRC::Calculate(data, sizeof(char) * BYTES_PER_BLOCK, CRC::CRC_32());
 
         ddtp_ACK * ack = new ddtp_ACK();
+        ack->setBlock(block->getNumber());
         if (crc != this->data->checksumAt(block->getNumber())) {
           // crc didnt match, nack it
           ack->setNack(true);
