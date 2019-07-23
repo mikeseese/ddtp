@@ -19,5 +19,5 @@ network OneToOne {
       address = 1;
     }
   connections:
-    satellite.down <--> { delay = 10ms; } <--> user.up;
+    satellite.down <--> { delay = 1.4ms; } <--> user.up;
 }
