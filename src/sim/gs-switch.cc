@@ -27,8 +27,8 @@ void GSSwitch::initialize() {
 void GSSwitch::handleMessage(cMessage *msg) {
   std::string gateName = msg->getArrivalGate()->getName();
 
-  bool isCorrupt = ((double) rand() / RAND_MAX) <= frameCorruptRate;
-  bool isLost = ((double) rand() / RAND_MAX) <= frameLostRate;
+  bool isCorrupt = ((double) rand() / RAND_MAX) < frameCorruptRate;
+  bool isLost = ((double) rand() / RAND_MAX) < frameLostRate;
 
   if (isLost) {
     return;
