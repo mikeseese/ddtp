@@ -54,7 +54,7 @@ void DDTP::GetNextState() {
       metadata->setChecksumsArraySize(session->length);
 
       for (unsigned int i = session->offset; i < session->offset + session->length; i++) {
-        metadata->setChecksums(i, data->checksumAt(i));
+        metadata->setChecksums(i - session->offset, data->checksumAt(i));
       }
 
       send(metadata, "down$o");
@@ -85,7 +85,7 @@ void DDTP::GetNextState() {
         // only let the user accept a session
         // TODO: reject logic?
         ddtp_Status * status = new ddtp_Status();
-        status->setCode(ddtp_SessionStatus::ACCEPTED);
+        status->setCode(ddtp_StatusCodes::DDTP_ACCEPT);
         send(status, "up$o");
         state = RECV_DATA;
       }

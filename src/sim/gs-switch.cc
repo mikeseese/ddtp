@@ -22,9 +22,17 @@ void GSSwitch::initialize() {
   }
 
   DisplayConnection();
+
+  // TODO: uhhhh. ya. this is not ideal lol
+  scheduleAt(SimTime(550, SIMTIME_MS), new cMessage("switch"));
 }
 
 void GSSwitch::handleMessage(cMessage *msg) {
+  if (strcmp(msg->getName(), "switch") == 0) {
+    ActivateSwitch();
+    return;
+  }
+
   std::string gateName = msg->getArrivalGate()->getName();
 
   bool isCorrupt = ((double) rand() / RAND_MAX) < frameCorruptRate;
@@ -69,7 +77,7 @@ void GSSwitch::DisplayConnection() {
 }
 
 unsigned int GSSwitch::ActivateSwitch() {
-  current = current % numGS;
+  current = (current + 1) % numGS;
 
   DisplayConnection();
 

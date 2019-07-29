@@ -1,5 +1,6 @@
 #include "ddtp.h"
 #include "../utils/CRC.h"
+#include <stdio.h>
 
 void DDTP::initialize() {
   state = ddtp_State::STANDBY;
@@ -24,12 +25,31 @@ void DDTP::handleMessage(cMessage *msg) {
     pk->getPacketType() != SESSION_INFO &&
     pk->getPacketType() != STATE_HEARTBEAT
   ) {
+    if (state == PRE_RECV_SESSION_INFO) {
+      // this is some extra data that got sent before we sent
+      // the reject, ignore it
+      return;
+    }
+
     // we don't have a session as of yet
     flag_ReceivedTransmission = true;
 
-    // assume we need to bubble down to wake up below nodes
-    if (gate("down$o")->isConnected()) {
-      send(msg, "down$o");
+    // make sure we don't keep broadcasint someone elses reject/no session message
+    if (
+      pk->getPacketType() != STATUS ||
+      static_cast<ddtp_StatusCodes>(check_and_cast<ddtp_Status *>(msg)->getCode()) != DDTP_REJECT_NO_SESSION
+    ) {
+      // let others know this session is unknown by this node
+      if (gate("down$o")->isConnected()) {
+        ddtp_Status * reject = new ddtp_Status();
+        reject->setCode(ddtp_StatusCodes::DDTP_REJECT_NO_SESSION);
+        send(reject, "down$o");
+      }
+      if (gate("up$o")->isConnected()) {
+        ddtp_Status * reject = new ddtp_Status();
+        reject->setCode(ddtp_StatusCodes::DDTP_REJECT_NO_SESSION);
+        send(reject, "up$o");
+      }
     }
 
     GetNextState();
@@ -121,7 +141,67 @@ void DDTP::handleMessage(cMessage *msg) {
       ddtp_Status * status = check_and_cast<ddtp_Status *>(msg);
 
       if (session != nullptr) {
-        session->status = static_cast<ddtp_SessionStatus>(status->getCode());
+        char statusCode = static_cast<ddtp_StatusCodes>(status->getCode());
+
+        if (statusCode == DDTP_REJECT_NO_SESSION) {
+          // a node is telling us the session is borked
+          // because it doesnt have it. we need a new session
+          // lets make sure our data stays entact though
+
+          // although, lets not make a new session if we're already
+          // doing this, duh
+          if (state == PRE_SEND_SESSION_INFO) {
+            GetNextState();
+            return;
+          }
+
+          // make sure others know about this
+          if (strcmp(msg->getArrivalGate()->getName(), "down$i") == 0) {
+            if (gate("up$o")->isConnected()) {
+              send(status, "up$o");
+            }
+          }
+          else {
+            if (gate("down$o")->isConnected()) {
+              send(status, "down$o");
+            }
+          }
+
+          ddtp_Session * nextSession = nullptr;
+
+          if (session->src == address) {
+            // we are the source, lets craft a new session
+            unsigned int offset = session->nextBlockToSend;
+            if (session->pendingBlocks.size() > 0) {
+              // we may have not received ack's for some blocks yet
+              // the front of the list should be the earliest block
+              offset = session->pendingBlocks.at(0).number;
+            }
+            nextSession = new ddtp_Session(session->src, session->dst, offset, session->length - offset, false);
+            nextSession->id = ++numSessions;
+            flag_StartingTransmission = true;
+            state = STANDBY;
+          }
+          else {
+            state = PRE_RECV_SESSION_INFO;
+          }
+
+          if (session) {
+            session->destroy();
+            delete session;
+            session = nextSession;
+          }
+
+          GetNextState();
+          return;
+        }
+
+        if (statusCode == DDTP_ACCEPT) {
+          session->status = ACCEPTED;
+        }
+        else {
+          session->status = REJECTED;
+        }
 
         if (address != session->src) {
           // bubble it up
@@ -160,6 +240,13 @@ void DDTP::handleMessage(cMessage *msg) {
           }
           else {
             // send an ack that we got it
+            std::cout << "Need Blocks: ";
+            for (unsigned int i = 0; i < this->data->length; i++) {
+              if (!this->data->blockRecieved(i)) {
+                std::cout << i << ", ";
+              }
+            }
+            std::cout << std::endl;
             send(ack, "up$o");
           }
         }
@@ -168,7 +255,7 @@ void DDTP::handleMessage(cMessage *msg) {
     case STATE_HEARTBEAT: {
       switch (state) {
         case STANDBY: {
-          if (data == nullptr && session == nullptr && address == SATELLITE_ADDR && simTime() < SimTime(750, SIMTIME_MS)) {
+          if (data == nullptr && session == nullptr && address == SATELLITE_ADDR && simTime() < SimTime(510, SIMTIME_MS)) {
             StartRandomTransmission(USER_ADDR, PAYLOAD_LENGTH);
           }
 

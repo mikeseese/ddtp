@@ -6,6 +6,7 @@
 ddtp_Data::ddtp_Data(unsigned int length, bool initializeData) {
   this->length = length;
   blocks.resize(length);
+  blocksReceived.resize(length);
   checksums.resize(length);
 
   for (unsigned int i = 0; i < length; i++) {
@@ -22,6 +23,7 @@ ddtp_Data::ddtp_Data(unsigned int length, bool initializeData) {
     }
 
     blocks.at(i) = block;
+    blocksReceived.at(i) = initializeData;
     checksums.at(i) = crc;
   }
 }
@@ -34,8 +36,13 @@ char * ddtp_Data::blockAt(unsigned int number) {
   return blocks.at(number);
 }
 
+bool ddtp_Data::blockRecieved(unsigned int number) {
+  return blocksReceived.at(number);
+}
+
 void ddtp_Data::setBlockAt(unsigned int number, char * block) {
   memcpy(&blocks.at(number), block, sizeof(char) * BYTES_PER_BLOCK);
+  blocksReceived.at(number) = true;
 }
 
 unsigned int ddtp_Data::checksumAt(unsigned int number) {

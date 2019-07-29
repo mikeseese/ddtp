@@ -11,6 +11,7 @@ enum ddtp_StatusCodes {
   DDTP_REJECT_NO_SPACE = 1;
   DDTP_REJECT_POWER_SAVING_MODE = 2;
   DDTP_REJECT_BUSY = 3;
+  DDTP_REJECT_NO_SESSION = 4;
 };
 
 packet ddtp_Status extends ddtp_packet {
