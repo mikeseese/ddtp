@@ -7,6 +7,7 @@
 void GSSwitch::initialize() {
   numGS = par("numGS").intValue();
   current = par("initialGS").intValue();
+  losesConnection = par("losesConnection").boolValue();
   gsGatePrefix = par("gsGatePrefix").stdstringValue();
   endGate = par("endGate").stdstringValue();
   frameCorruptRate = par("frameCorruptRate").doubleValue();
@@ -51,16 +52,18 @@ void GSSwitch::handleMessage(cMessage *msg) {
 }
 
 void GSSwitch::DisplayConnection() {
-  for (int i = 0; i < numGS; i++) {
-    cDisplayString & inStr = gateHalf(gsGatePrefix.c_str(), cGate::INPUT, i)->getDisplayString();
-    cDisplayString & outStr = gateHalf(gsGatePrefix.c_str(), cGate::OUTPUT, i)->getDisplayString();
-    if (i == current) {
-      inStr.parse("ls=,1");
-      outStr.parse("ls=,1");
-    }
-    else {
-      inStr.parse("ls=,0");
-      outStr.parse("ls=,0");
+  if (losesConnection) {
+    for (int i = 0; i < numGS; i++) {
+      cDisplayString & inStr = gateHalf(gsGatePrefix.c_str(), cGate::INPUT, i)->getDisplayString();
+      cDisplayString & outStr = gateHalf(gsGatePrefix.c_str(), cGate::OUTPUT, i)->getDisplayString();
+      if (i == current) {
+        inStr.parse("ls=,1");
+        outStr.parse("ls=,1");
+      }
+      else {
+        inStr.parse("ls=,0");
+        outStr.parse("ls=,0");
+      }
     }
   }
 }

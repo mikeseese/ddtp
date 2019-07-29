@@ -16,6 +16,7 @@ class GSSwitch : public cSimpleModule {
  private:
   unsigned int numGS;
   unsigned int current;
+  bool losesConnection;
   std::string gsGatePrefix;
   std::string endGate;
   double frameCorruptRate;

@@ -17,6 +17,7 @@ simple GSSwitch
     parameters:
         int numGS;
         int initialGS;
+        bool losesConnection;
         string gsGatePrefix;
         string endGate;
         double frameCorruptRate;
@@ -62,6 +63,7 @@ network OneSatOneUserTwoGS
             parameters:
                 numGS = 2;
                 initialGS = 0;
+                losesConnection = true;
                 endGate = "up";
                 gsGatePrefix = "down";
                 frameCorruptRate = 0;
@@ -78,6 +80,7 @@ network OneSatOneUserTwoGS
             parameters:
                 numGS = 2;
                 initialGS = 0;
+                losesConnection = false;
                 endGate = "down";
                 gsGatePrefix = "up";
                 frameCorruptRate = 0;
