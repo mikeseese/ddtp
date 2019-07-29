@@ -70,7 +70,7 @@ network OneSatOneUserTwoGS
                 frameLostRate = 0;
                 deterministicErrors = true;
 
-                @display("p=193,151;i=block/ifcard");
+                @display("p=193,135;i=block/ifcard");
             gates:
                 up[1];
                 down[2];
@@ -94,12 +94,12 @@ network OneSatOneUserTwoGS
         }
 
         gs0: DDTP {
-            @display("p=88.92334,233.96335;i=device/receiverdish;is=l");
+            @display("p=75,319;i=device/receiverdish;is=l");
             address = 2;
         }
 
         gs1: DDTP {
-            @display("p=305.62003,233.96335;i=device/receiverdish;is=l");
+            @display("p=310,319;i=device/receiverdish;is=l");
             address = 3;
         }
 
