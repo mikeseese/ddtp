@@ -22,6 +22,8 @@ class GSSwitch : public cSimpleModule {
   double frameLostRate;
   bool deterministicErrors;
 
+  void DisplayConnection();
+
  public:
   unsigned int ActivateSwitch();
   unsigned int ActivateSwitch(unsigned int next);

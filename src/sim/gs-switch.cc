@@ -7,8 +7,8 @@
 void GSSwitch::initialize() {
   numGS = par("numGS").intValue();
   current = par("initialGS").intValue();
-  gsGatePrefix = par("gsGatePrefix").stringValue();
-  endGate = par("endGate").stringValue();
+  gsGatePrefix = par("gsGatePrefix").stdstringValue();
+  endGate = par("endGate").stdstringValue();
   frameCorruptRate = par("frameCorruptRate").doubleValue();
   frameLostRate = par("frameLostRate").doubleValue();
   deterministicErrors = par("deterministicErrors").boolValue();
@@ -19,10 +19,11 @@ void GSSwitch::initialize() {
   else {
     srand(time(NULL));
   }
+
+  DisplayConnection();
 }
 
 void GSSwitch::handleMessage(cMessage *msg) {
-  std::string port = gsGatePrefix + "[" + std::to_string(current) + "]";
   std::string gateName = msg->getArrivalGate()->getName();
 
   bool isCorrupt = ((double) rand() / RAND_MAX) <= frameCorruptRate;
@@ -41,22 +42,41 @@ void GSSwitch::handleMessage(cMessage *msg) {
     }
   }
 
-  if (gateName.compare(endGate) == 0) {
-    send(msg, port.c_str());
+  if (gateName.compare(endGate + "$i") == 0) {
+    send(msg, (gsGatePrefix + "$o").c_str(), current);
   }
-  else if (gateName.compare(port) == 0) {
-    send(msg, endGate.c_str());
+  else if (gateName.compare(gsGatePrefix + "$i") == 0) {
+    send(msg, (endGate + "$o").c_str(), 0);
+  }
+}
+
+void GSSwitch::DisplayConnection() {
+  for (int i = 0; i < numGS; i++) {
+    cDisplayString & inStr = gateHalf(gsGatePrefix.c_str(), cGate::INPUT, i)->getDisplayString();
+    cDisplayString & outStr = gateHalf(gsGatePrefix.c_str(), cGate::OUTPUT, i)->getDisplayString();
+    if (i == current) {
+      inStr.parse("ls=,1");
+      outStr.parse("ls=,1");
+    }
+    else {
+      inStr.parse("ls=,0");
+      outStr.parse("ls=,0");
+    }
   }
 }
 
 unsigned int GSSwitch::ActivateSwitch() {
   current = current % numGS;
 
+  DisplayConnection();
+
   return current;
 }
 
 unsigned int GSSwitch::ActivateSwitch(unsigned int next) {
   current = next;
+
+  DisplayConnection();
 
   return current;
 }
