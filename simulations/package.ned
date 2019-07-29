@@ -30,20 +30,6 @@ simple GSSwitch
         inout down[];
 }
 
-network OneToOne
-{
-    submodules:
-        satellite: DDTP {
-            address = 0;
-        }
-        user: DDTP {
-            address = 1;
-        }
-
-    connections:
-        satellite.down <--> {  delay = 1.4ms; } <--> user.up;
-}
-
 network OneSatOneUserTwoGS
 {
     @display("bgb=413.53668,467.9267");
