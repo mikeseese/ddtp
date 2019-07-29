@@ -81,11 +81,22 @@ void DDTP::GetNextState() {
       break;
     }
     case PRE_RECV_DATA: {
-      // TODO: reject logic?
-      ddtp_Status * status = new ddtp_Status();
-      status->setCode(ddtp_SessionStatus::ACCEPTED);
-      send(status, "up$o");
-      state = RECV_DATA;
+      if (session->dst == address) {
+        // only let the user accept a session
+        // TODO: reject logic?
+        ddtp_Status * status = new ddtp_Status();
+        status->setCode(ddtp_SessionStatus::ACCEPTED);
+        send(status, "up$o");
+        state = RECV_DATA;
+      }
+      else if (flag_ForwardedStatus) {
+        // TODO: reject logic?
+        if (session->status == ddtp_SessionStatus::ACCEPTED) {
+          state = RECV_DATA;
+        }
+
+        flag_ForwardedStatus = false;
+      }
       break;
     }
     case SEND_DATA: {

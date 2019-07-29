@@ -36,6 +36,7 @@ class DDTP : public cSimpleModule {
 
   bool flag_StartingTransmission;
   bool flag_ReceivedTransmission;
+  bool flag_ForwardedStatus;
 };
 
 Define_Module(DDTP);

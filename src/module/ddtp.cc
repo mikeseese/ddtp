@@ -10,6 +10,7 @@ void DDTP::initialize() {
 
   flag_StartingTransmission = false;
   flag_ReceivedTransmission = false;
+  flag_ForwardedStatus = false;
 
   nextHeartbeat = SimTime(500, SIMTIME_MS);
   scheduleAt(nextHeartbeat, new ddtp_StateHeartbeat());
@@ -25,6 +26,12 @@ void DDTP::handleMessage(cMessage *msg) {
   ) {
     // we don't have a session as of yet
     flag_ReceivedTransmission = true;
+
+    // assume we need to bubble down to wake up below nodes
+    if (gate("down$o")->isConnected()) {
+      send(msg, "down$o");
+    }
+
     GetNextState();
     return;
   }
@@ -119,6 +126,8 @@ void DDTP::handleMessage(cMessage *msg) {
         if (address != session->src) {
           // bubble it up
           send(status, "up$o");
+
+          flag_ForwardedStatus = true;
         }
       }
 
@@ -140,6 +149,7 @@ void DDTP::handleMessage(cMessage *msg) {
         if (crc != this->data->checksumAt(block->getNumber())) {
           // crc didnt match, nack it
           ack->setNack(true);
+          send(ack, "up$o");
         } else {
           // crc matched, mark it
           this->data->setBlockAt(block->getNumber(), data);
@@ -148,9 +158,11 @@ void DDTP::handleMessage(cMessage *msg) {
             // bubble it down
             send(block, "down$o");
           }
+          else {
+            // send an ack that we got it
+            send(ack, "up$o");
+          }
         }
-
-        send(ack, "up$o");
       }
     }
     case STATE_HEARTBEAT: {
