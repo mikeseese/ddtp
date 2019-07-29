@@ -35,6 +35,7 @@ OBJS = \
     $O/module/ddtp.o \
     $O/module/session.o \
     $O/module/state-machine.o \
+    $O/sim/gs-switch.o \
     $O/messages/ack_m.o \
     $O/messages/block_m.o \
     $O/messages/control_m.o \

@@ -18,6 +18,9 @@ class GSSwitch : public cSimpleModule {
   unsigned int current;
   std::string gsGatePrefix;
   std::string endGate;
+  double frameCorruptRate;
+  double frameLostRate;
+  bool deterministicErrors;
 
  public:
   unsigned int ActivateSwitch();

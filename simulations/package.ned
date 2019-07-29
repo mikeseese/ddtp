@@ -16,6 +16,9 @@ simple GSSwitch {
     int initialGS;
     string gsGatePrefix;
     string endGate;
+    double frameCorruptRate;
+    double frameLostRate;
+    bool deterministicErrors;
   gates:
     inout up0 @loose;
     inout up1 @loose;
@@ -65,6 +68,9 @@ network OneSatOneUserTwoGS {
       initialGS = 0;
       endGate = "up0";
       gsGatePrefix = "down";
+      frameCorruptRate = 0;
+      frameLostRate = 0;
+      deterministicErrors = true;
     }
 
     user2gsSwitch : GSSwitch {
@@ -72,6 +78,9 @@ network OneSatOneUserTwoGS {
       initialGS = 0;
       endGate = "down0";
       gsGatePrefix = "up";
+      frameCorruptRate = 0;
+      frameLostRate = 0;
+      deterministicErrors = true;
     }
 
     gs0 : DDTP {
