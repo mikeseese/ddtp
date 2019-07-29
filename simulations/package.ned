@@ -2,101 +2,112 @@ package ddtp.simulations;
 
 @license(LGPL);
 
-simple DDTP {
-  parameters:
-    int address;
-  gates:
-    inout up @loose;
-    inout down @loose;
+simple DDTP
+{
+    parameters:
+        int address;
+
+    gates:
+        inout up @loose;
+        inout down @loose;
 }
 
-simple GSSwitch {
-  parameters:
-    int numGS;
-    int initialGS;
-    string gsGatePrefix;
-    string endGate;
-    double frameCorruptRate;
-    double frameLostRate;
-    bool deterministicErrors;
-  gates:
-    inout up0 @loose;
-    inout up1 @loose;
-    inout up2 @loose;
-    inout up3 @loose;
-    inout up4 @loose;
-    inout up5 @loose;
-    inout up6 @loose;
-    inout up7 @loose;
-    inout up8 @loose;
-    inout up9 @loose;
-    inout down0 @loose;
-    inout down1 @loose;
-    inout down2 @loose;
-    inout down3 @loose;
-    inout down4 @loose;
-    inout down5 @loose;
-    inout down6 @loose;
-    inout down7 @loose;
-    inout down8 @loose;
-    inout down9 @loose;
+simple GSSwitch
+{
+    parameters:
+        int numGS;
+        int initialGS;
+        string gsGatePrefix;
+        string endGate;
+        double frameCorruptRate;
+        double frameLostRate;
+        bool deterministicErrors;
+        @display("i=block/switch;q=queue");
+
+    gates:
+        inout up[];
+        inout down[];
 }
 
-network OneToOne {
-  submodules:
-    satellite : DDTP {
-      address = 0;
-    }
-    user : DDTP {
-      address = 1;
-    }
-  connections:
-    satellite.down <--> { delay = 1.4ms; } <--> user.up;
+network OneToOne
+{
+    submodules:
+        satellite: DDTP {
+            address = 0;
+        }
+        user: DDTP {
+            address = 1;
+        }
+
+    connections:
+        satellite.down <--> {  delay = 1.4ms; } <--> user.up;
 }
 
-network OneSatOneUserTwoGS {
-  submodules:
-    satellite : DDTP {
-      address = 0;
-    }
-    user : DDTP {
-      address = 1;
-    }
+network OneSatOneUserTwoGS
+{
+    @display("bgb=413.53668,467.9267");
 
-    sat2gsSwitch : GSSwitch {
-      numGS = 2;
-      initialGS = 0;
-      endGate = "up0";
-      gsGatePrefix = "down";
-      frameCorruptRate = 0;
-      frameLostRate = 0;
-      deterministicErrors = true;
-    }
+    submodules:
+        satellite: DDTP {
+            @display("p=193.38667,42.303333");
+            address = 0;
+        }
 
-    user2gsSwitch : GSSwitch {
-      numGS = 2;
-      initialGS = 0;
-      endGate = "down0";
-      gsGatePrefix = "up";
-      frameCorruptRate = 0;
-      frameLostRate = 0;
-      deterministicErrors = true;
-    }
+        user: DDTP {
+            address = 1;
+            @display("p=193.38667,426.4867");
+        }
 
-    gs0 : DDTP {
-      address = 2;
-    }
-    gs1 : DDTP {
-      address = 3;
-    }
-  connections:
-    satellite.down <--> { delay = 1.4ms; } <--> sat2gsSwitch.up0;
+        sat2gsSwitch: GSSwitch {
+            parameters:
+                numGS = 2;
+                initialGS = 0;
+                endGate = "up[0]";
+                gsGatePrefix = "down";
+                frameCorruptRate = 0;
+                frameLostRate = 0;
+                deterministicErrors = true;
 
-    sat2gsSwitch.down0 <--> { delay = 0ms; } <--> gs0.up;
-    sat2gsSwitch.down1 <--> { delay = 0ms; } <--> gs1.up;
+                @display("p=193.38667,141.58667");
+            gates:
+                up[1];
+                down[2];
+        }
 
-    gs0.down <--> { delay = 0ms; } <--> user2gsSwitch.up0;
-    gs1.down <--> { delay = 0ms; } <--> user2gsSwitch.up1;
+        user2gsSwitch: GSSwitch {
+            parameters:
+                numGS = 2;
+                initialGS = 0;
+                endGate = "down[0]";
+                gsGatePrefix = "up";
+                frameCorruptRate = 0;
+                frameLostRate = 0;
+                deterministicErrors = true;
 
-    user2gsSwitch.down0 <--> { delay = 0ms; } <--> user.up;
+                @display("p=193.38667,329.79333");
+            gates:
+                up[2];
+                down[1];
+        }
+
+        gs0: DDTP {
+            @display("p=88.92334,233.96335");
+            address = 2;
+        }
+
+        gs1: DDTP {
+            @display("p=305.62003,233.96335");
+            address = 3;
+        }
+
+    connections:
+        satellite.down <--> { delay = 1.4ms; } <--> sat2gsSwitch.up[0];
+
+        sat2gsSwitch.down[0] <--> { delay = 0ms; } <--> gs0.up;
+        sat2gsSwitch.down[1] <--> { delay = 0ms; } <--> gs1.up;
+
+        gs0.down <--> { delay = 0ms; } <--> user2gsSwitch.up[0];
+        gs1.down <--> { delay = 0ms; } <--> user2gsSwitch.up[1];
+
+        user2gsSwitch.down[0] <--> { delay = 0ms; } <--> user.up;
 }

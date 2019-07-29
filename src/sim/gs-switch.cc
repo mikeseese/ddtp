@@ -22,7 +22,7 @@ void GSSwitch::initialize() {
 }
 
 void GSSwitch::handleMessage(cMessage *msg) {
-  std::string port = gsGatePrefix + std::to_string(current);
+  std::string port = gsGatePrefix + "[" + std::to_string(current) + "]";
   std::string gateName = msg->getArrivalGate()->getName();
 
   bool isCorrupt = ((double) rand() / RAND_MAX) <= frameCorruptRate;
