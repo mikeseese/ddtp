@@ -52,8 +52,8 @@ network OneSatOneUserTwoGS
                 losesConnection = true;
                 endGate = "up";
                 gsGatePrefix = "down";
-                frameCorruptRate = 0;
-                frameLostRate = 0;
+                frameCorruptRate = 0.5;
+                frameLostRate = 0.5;
                 deterministicErrors = true;
 
                 @display("p=193,135;i=block/ifcard");

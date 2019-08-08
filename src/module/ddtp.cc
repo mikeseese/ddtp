@@ -265,7 +265,7 @@ void DDTP::handleMessage(cMessage *msg) {
         case SEND_DATA: {
           // check if its been awhile since we've seen any blocks
           for (auto itr = session->pendingBlocks.begin(); itr != session->pendingBlocks.end(); itr++) {
-            if (itr->time <= simTime() - SimTime(1000, SIMTIME_MS)) {
+            if (itr->time <= simTime() - SimTime(5, SIMTIME_MS)) {
               // let's resend the block
               char * blockData = data->blockAt(itr->number);
 
@@ -276,6 +276,9 @@ void DDTP::handleMessage(cMessage *msg) {
                 block->setData(i, blockData[i]);
               }
 
+              char buf[50];
+              sprintf(buf, "Block #%d Timeout; Resending!", block->getNumber());
+              bubble(buf);
               send(block, "down$o");
               break;
             }

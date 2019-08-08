@@ -35,17 +35,23 @@ void GSSwitch::handleMessage(cMessage *msg) {
 
   std::string gateName = msg->getArrivalGate()->getName();
 
-  bool isCorrupt = ((double) rand() / RAND_MAX) < frameCorruptRate;
-  bool isLost = ((double) rand() / RAND_MAX) < frameLostRate;
+  ddtp_packet * pk = check_and_cast<ddtp_packet *>(msg);
+  if (pk->getPacketType() == BLOCK) {
+    bool isCorrupt = ((double) rand() / RAND_MAX) < frameCorruptRate;
+    bool isLost = ((double) rand() / RAND_MAX) < frameLostRate;
+    ddtp_Block * block = check_and_cast<ddtp_Block *>(msg);
 
-  if (isLost) {
-    return;
-  }
+    if (isLost) {
+      char buf[50];
+      sprintf(buf, "Block #%d Lost!", block->getNumber());
+      bubble(buf);
+      return;
+    }
 
-  if (isCorrupt) {
-    ddtp_packet * pk = check_and_cast<ddtp_packet *>(msg);
-    if (pk->getPacketType() == BLOCK) {
-      ddtp_Block * block = check_and_cast<ddtp_Block *>(msg);
+    if (isCorrupt) {
+      char buf[50];
+      sprintf(buf, "Block #%d Corrupted!", block->getNumber());
+      bubble(buf);
       char c = block->getData(0);
       block->setData(0, c + 1);
     }
@@ -80,6 +86,10 @@ unsigned int GSSwitch::ActivateSwitch() {
   current = (current + 1) % numGS;
 
   DisplayConnection();
+
+  char buf[50];
+  sprintf(buf, "Emulating data link switch to GS%d", current);
+  bubble(buf);
 
   return current;
 }
